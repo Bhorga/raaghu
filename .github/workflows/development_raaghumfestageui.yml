@@ -84,6 +84,7 @@ jobs:
 
   test:
     runs-on: windows-latest
+    needs: deploy
     steps:
     - uses: actions/checkout@v3
     - uses: actions/setup-node@v2
