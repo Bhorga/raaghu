@@ -25,12 +25,13 @@ jobs:
     permissions:
       contents: none
     runs-on: ubuntu-latest
-    environment:
-      name: 'Production'
-      url: ${{ steps.deploy-to-webapp.outputs.webapp-url }}
+
 
     steps:
-        
+    - uses: actions/checkout@v3
+    - uses: actions/setup-node@v2
+      with:
+        node-version: '14'
     - name: npm install playwright
       working-directory: ./raaghu-mfe/playwright
       run: |
