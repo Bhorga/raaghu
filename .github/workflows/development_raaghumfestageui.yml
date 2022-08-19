@@ -1,35 +1,49 @@
 # Docs for the Azure Web Apps Deploy action: https://github.com/Azure/webapps-deploy
 # More GitHub Actions for Azure: https://github.com/Azure/actions
 
-name: Build and deploy stageui.raaghu.io
+name: Build and deploy demo.raaghu.io
 
 on:
   push:
+    branches:
+      - "main"
   schedule:
     - cron: '0 0 * * *'
+  workflow_dispatch:
+
+env:
+  AZURE_WEBAPP_NAME: raaghumfeuiapp   # set this to your application's name
+  AZURE_WEBAPP_PACKAGE_PATH: '.'      # set this to the path to your web app project, defaults to the repository root
+  NODE_VERSION: '16.15.0'                # set this to the node version to use
+  NODE_OPTIONS: "--max_old_space_size=5120"
 
 permissions:
   contents: read
 
-
 jobs:
-  test:
-    permissions:
-      contents: none
-    runs-on: ubuntu-latest
-
-
+  build:
+    runs-on: windows-latest
     steps:
     - uses: actions/checkout@v3
-    - uses: actions/setup-node@v2
+#    - uses: microsoft/variable-substitution@v1
+#      with:
+#          files: 'raaghu-mfe/projects/host/src/assets/appconfig.json'
+#      env:
+#          appBaseUrl: ${{ secrets.APPBASEURL }}
+          
+
+    - name: Set up Node.js
+      uses: actions/setup-node@v3
       with:
-        node-version: '14'
-    - name: npm install playwright
-      working-directory: ./raaghu-mfe/playwright
+        node-version: ${{ env.NODE_VERSION }}
+        cache: 'npm'
+        cache-dependency-path: './raaghu-mfe'  
+        
+    - name: npm install raaghu-elements
+      working-directory: raaghu-elements
       run: |
         npm install
        
-    - name: test raaghu-mfe with playwright
-      working-directory: ./raaghu-mfe/playwright
-      run: |
-        npx playwright test 
+    - name: npm install, build, and test raaghu-mfe
+      working-directory: ./raaghu-mfe
+      run: npm install
